@@ -1,5 +1,7 @@
 package org.example.springaionboardingservice.services;
 
+import org.example.springaionboardingservice.model.ClientProfile;
+
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -12,40 +14,40 @@ public class OnboardingService {
 
     private final ChatClient chatClient;
 
-    public OnboardingService(ChatClient.Builder builder) {
-        this.chatClient = builder.build();
+    public OnboardingService(ChatClient.Builder chatClientBuilder) {
+        this.chatClient = chatClientBuilder.build();
     }
 
-    public String generateOnboardingSummary(String clientName,
-                                            String accountType,
-                                            String country) {
-        // Define template with {placeholders}
-        String template = """
-                You are a banking onboarding assistant.
-                Generate a professional client onboarding summary for:
+    public String generateOnboardingSummary(ClientProfile profile) {
+        // Task 2: Create PromptTemplate
+        String userMessage = """
+                You are a professional client onboarding specialist.
+                Generate a professional onboarding summary for the following client:
                 
-                - Client Name  : {clientName}
-                - Account Type : {accountType}
-                - Country      : {country}
+                Client Name: {client_name}
+                Industry: {industry}
+                Services: {services}
+                Region: {region}
+                Tier: {tier}
                 
-                Include:
-                1. Welcome message
-                2. KYC documents required for {country}
-                3. Account activation steps
-                4. Compliance notes specific to {accountType}
+                The summary should be welcoming, professional, and highlight how our services will benefit their specific industry and region.
                 """;
 
-        // Build PromptTemplate and inject variables
-        PromptTemplate promptTemplate = new PromptTemplate(template);
+        PromptTemplate template = new PromptTemplate(userMessage);
 
-        Prompt prompt = promptTemplate.create(Map.of(
-                "clientName",   clientName,
-                "accountType",  accountType,
-                "country",      country
-        ));
+        // Task 3: Map Variables
+        Map<String, Object> variables = Map.of(
+                "client_name", profile.getClientName(),
+                "industry", profile.getIndustry(),
+                "services", profile.getServices(),
+                "region", profile.getRegion(),
+                "tier", profile.getTier()
+        );
 
-        return chatClient
-                .prompt(prompt)
+        // Task 4: Generate Prompt and Send using ChatClient
+        Prompt prompt = template.create(variables);
+
+        return chatClient.prompt(prompt)
                 .call()
                 .content();
     }
