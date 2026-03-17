@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: spring-ai-onboarding-service
+  ai:
+    openai:
+      api-key: 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
+      base-url: https://api.groq.com/openai
+      chat:
+        options:
+          model: llama-3.3-70b-versatile
+          temperature: 0.7
+          max-tokens: 500
+
+logging:
+  level:
+    org.springframework.ai: DEBUG
+    org.springframework.context: DEBUG
